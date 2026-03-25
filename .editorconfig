@@ -1,0 +1,30 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_size = 4
+
+# -- Makefile 文件用 tab 缩进 --
+[Makefile]
+indent_style = tab
+
+[Makefile*]
+indent_style = tab
+
+[*Makefile]
+indent_style = tab
+
+[*.mak]
+indent_style = tab
+# -- Makefile end --
+
+[*.{cmd,bat}]
+charset = GB2312
+end_of_line = crlf
+
+[{package.json,.travis.yml}]
+indent_size = 2
