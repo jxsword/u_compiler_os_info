@@ -1,55 +1,62 @@
 name: Build Matrix on Ubuntu latest (32/64 bit)
 
 env:
-    FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 on:
-    # push:
-    #     branches: ["main", "master"]
-    # pull_request:
-    #     branches: ["main", "master"]
-    workflow_dispatch:
+  # push:
+  #     branches: ["main", "master"]
+  # pull_request:
+  #     branches: ["main", "master"]
+  workflow_dispatch:
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest
 
-        # 矩阵配置：组合不同的构建类型和架构
-        strategy:
-            matrix:
-                build_type: [Debug, Release]
-                arch: [x64, x86]
+    # 矩阵配置：组合不同的构建类型和架构
+    strategy:
+      matrix:
+        build_type: [Debug, Release]
+        arch: [x64, x86]
 
-        steps:
-            - name: 检出代码
-              uses: actions/checkout@v4
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
 
-            - name: 安装 32位 依赖 (Multilib)
-              # 只有当架构是 x86 (32位) 时才执行此步骤
-              if: matrix.arch == 'x86'
-              run: |
-                  sudo dpkg --add-architecture i386
-                  sudo apt-get update
-                  sudo apt-get install -y gcc-multilib g++-multilib
+      - name: 安装 32位 依赖 (Multilib)
+        # 只有当架构是 x86 (32位) 时才执行此步骤
+        if: matrix.arch == 'x86'
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install -y gcc-multilib g++-multilib
 
-            - name: 创建构建目录
-              run: mkdir -p build
+      - name: 创建构建目录
+        run: mkdir -p build
 
-            - name: 配置 CMake
-              working-directory: ./build
-              run: |
-                  if [ "${{ matrix.arch }}" == "x86" ]; then
-                    # 32位构建需要添加 -m32 标志
-                    cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_C_FLAGS=-m32
-                  else
-                    # 64位构建 (默认)
-                    cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_C_FLAGS=-m64
-                  fi
+      - name: 配置 CMake
+        working-directory: ./build
+        run: |
+          if [ "${{ matrix.arch }}" == "x86" ]; then
+            # 32位构建需要添加 -m32 标志
+            cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_C_FLAGS=-m32
+          else
+            # 64位构建 (默认)
+            cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_C_FLAGS=-m64
+          fi
 
-            - name: 构建项目
-              working-directory: ./build
-              run: cmake --build .
+      - name: 构建项目
+        working-directory: ./build
+        run: cmake --build .
 
-            - name: 运行程序
-              working-directory: ./build
-              run: ./SystemInfoApp
+      - name: 运行程序
+        working-directory: ./build
+        run: |
+          echo "=== 使用 file 命令检查二进制文件 ==="
+          # SystemInfoApp 是 CMakeLists.txt 中定义的可执行文件名
+          file ./SystemInfoApp
+
+          echo ""
+          echo "=== 运行程序输出 ==="
+          ./SystemInfoApp
