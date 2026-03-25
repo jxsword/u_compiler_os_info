@@ -1,7 +1,7 @@
 name: Build Matrix on Ubuntu latest (32/64 bit)
 
 env:
-FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 on:
   # push:
